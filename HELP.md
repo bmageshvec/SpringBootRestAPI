@@ -29,19 +29,22 @@
    docker compose logs -f mysql-db
 5. Lists the status of containers managed by Docker Compose.
    docker compose ps
+
 6. Runs a command inside a running container
    docker  exec mysql-db mysql -uroot -prootpassword
    docker  exec app sh
-7. Stops running containers without removing them
+7. Rebuild  and restart
+   docker-compose up -d --build   
+8. Stops running containers without removing them
    docker compose stop app
-8. Starts stopped containers without recreating them
+9. Starts stopped containers without recreating them
    docker compose start
-9. Lists images used by services in docker compose.yml
+10. Lists images used by services in docker compose.yml
    docker compose images
-10. Restarts running containers
+1Restarts running containers
     docker compose restart
     docker compose restart app
-11. Pulls the latest images for services defined in docker compose.yml
+2Pulls the latest images for services defined in docker compose.yml
     docker compose pull
     docker compose pull mysql-db
 
@@ -86,6 +89,10 @@ Faster, more efficient, and actively maintained.
    docker rmi -f $(docker images -q)
 10. Single command to remove all containers, images, networks, and unused resources:
     docker system prune -a -f --volumes
+11. Runs a command inside a running container
+   docker exec -it <mysql-container-name> mysql -uroot -prootpassword
+12. Ensure the app service can resolve mysql-db. From the app container:
+   docker exec -it <app-container-name> ping mysql-db  
 
 ## unix  Commands
 1. Remove Windows line endings:
