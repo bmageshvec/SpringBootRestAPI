@@ -1,5 +1,6 @@
 package com.example.service;
 
+import com.example.dao.DepartmentDAO;
 import com.example.dao.EmployeeDAO;
 import com.example.dto.EmployeeDTO;
 import com.example.entity.Department;
@@ -7,9 +8,11 @@ import com.example.entity.Employee;
 import com.example.mapper.EntityMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,10 +25,14 @@ import static org.mockito.Mockito.*;
  * Unit tests for EmployeeService.
  * Tests business logic and interactions with DAO and Mapper layers.
  */
+@ExtendWith(MockitoExtension.class)
 class EmployeeServiceTest {
 
     @Mock
     private EmployeeDAO employeeDAO;
+
+    @Mock
+    private DepartmentDAO departmentDAO;
 
     @Mock
     private EntityMapper mapper;
@@ -35,11 +42,12 @@ class EmployeeServiceTest {
 
     private Employee employee;
     private EmployeeDTO employeeDTO;
+    private Department department;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-        Department department = new Department(1L, "IT", "Building A", null);
+        //MockitoAnnotations.openMocks(this);
+        department = new Department(1L, "IT", "Building A", null);
         employee = new Employee(1L, "John", "Doe", "john.doe@company.com", department);
         employeeDTO = new EmployeeDTO();
         employeeDTO.setId(1L);
@@ -54,6 +62,7 @@ class EmployeeServiceTest {
      */
     @Test
     void createEmployee_success() {
+        when(departmentDAO.findById(1L)).thenReturn(Optional.of(department));
         when(mapper.toEmployeeEntity(employeeDTO)).thenReturn(employee);
         when(employeeDAO.save(employee)).thenReturn(employee);
         when(mapper.toEmployeeDTO(employee)).thenReturn(employeeDTO);
@@ -117,6 +126,7 @@ class EmployeeServiceTest {
      */
     @Test
     void updateEmployee_success() {
+        when(departmentDAO.findById(1L)).thenReturn(Optional.of(department));
         when(mapper.toEmployeeEntity(employeeDTO)).thenReturn(employee);
         when(employeeDAO.save(employee)).thenReturn(employee);
         when(mapper.toEmployeeDTO(employee)).thenReturn(employeeDTO);

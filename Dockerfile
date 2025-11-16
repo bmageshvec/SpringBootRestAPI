@@ -23,17 +23,24 @@ RUN echo "Generated JAR files:" && ls -la target/
 # Stage 2: Create the runtime image
 FROM eclipse-temurin:21-jre-alpine
 
+# Install bash and curl for wait script
+RUN apk add --no-cache bash curl
+
 # Set working directory
 WORKDIR /app
 
-# Copy the JAR file from the builder stage (irrespective of name)
+# Copy the JAR file from the builder stage
 COPY --from=builder /app/target/*.jar app.jar
 
-# Debug: List copied JAR file
-RUN echo "Copied JAR file:" && ls -la
+# Copy wait script
+COPY wait-for-mysql.sh .
+RUN chmod +x wait-for-mysql.sh
+
+# Debug: List copied files
+RUN echo "Copied files:" && ls -la
 
 # Expose the application port
 EXPOSE 8080
 
-# Run the application
-CMD ["java", "-jar", "app.jar"]
+# Run the wait script before starting the app
+CMD ["./wait-for-mysql.sh", "mysql-db:3306", "--", "java", "-Dspring.config.location=/app/config/", "-jar", "app.jar"]

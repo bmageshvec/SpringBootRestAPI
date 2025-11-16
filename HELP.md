@@ -4,7 +4,7 @@
 1. Open the play with Docker   https://labs.play-with-docker.com/
 2. Click on  ADD NEW INSTANCE
 3. Create a  Zip  file  springdocker.zip  containing the  src ,pom.xml and docker file
-4. unzip the  using unzip springdocker.zip -d springdocker .
+4. unzip the  using unzip springdocker.zip -d springdocker
 5. cd springdocker
 6. Run  this  command  to build  an image docker build -t springdocker .
    _-t flag specifies the tag (name) for the resulting Docker image. Image is created with springdocker as the  tag name
@@ -30,8 +30,8 @@
 5. Lists the status of containers managed by Docker Compose.
    docker compose ps
 6. Runs a command inside a running container
-   docker compose exec mysql-db mysql -uroot -prootpassword
-   docker compose exec app sh
+   docker  exec mysql-db mysql -uroot -prootpassword
+   docker  exec app sh
 7. Stops running containers without removing them
    docker compose stop app
 8. Starts stopped containers without recreating them
@@ -86,6 +86,10 @@ Faster, more efficient, and actively maintained.
    docker rmi -f $(docker images -q)
 10. Single command to remove all containers, images, networks, and unused resources:
     docker system prune -a -f --volumes
+
+## unix  Commands
+1. Remove Windows line endings:
+   sed -i 's/\r$//' join-swarm.bash
 
 
 
