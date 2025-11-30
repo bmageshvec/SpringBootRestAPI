@@ -39,7 +39,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    # REQUIRED: Explicitly tag the image so Swarm can reference it after the build.
     image: restapiapp_app:latest 
     networks:
       - app-overlay
@@ -49,6 +48,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/mydatabase?allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: myuser
       SPRING_DATASOURCE_PASSWORD: userpassword
+      # PERMANENT FIX: Set environment variable to increase the wait script timeout
+      WAIT_TIMEOUT: 180 
     depends_on:
       - mysql-db
     
