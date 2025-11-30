@@ -1,52 +1,48 @@
 #!/bin/sh
-# wait-for-mysql.sh: Waits for the MySQL host to be ready on a specific port.
+# wait-for-mysql.sh: Waits for the MySQL host to be ready on a specific port, then execs the remaining args.
+# Usage: ./wait-for-mysql.sh <host> <port> [extra args...]
+# Env: WAIT_TIMEOUT (seconds, default 180)
 
-# Variables:
-# $1: Hostname (e.g., 'db' in a Docker Compose network)
-# $2: Port (e.g., '3306')
 HOST="$1"
 PORT="$2"
+shift 2  # Consume HOST and PORT; remaining "$@" are for the app (e.g., java args)
 
-# FIX: Check for the WAIT_TIMEOUT environment variable and use it, 
-# otherwise default to 180 seconds (using standard shell parameter expansion).
+# Default timeout
 TIMEOUT=${WAIT_TIMEOUT:-180}
-
-SLEEP=1
+SLEEP_INTERVAL=1
 COUNT=0
 
 echo "Waiting for $HOST:$PORT to be available (Timeout: $TIMEOUT seconds)..."
 
-# The loop attempts to connect using netcat (nc) or /dev/tcp
-# We use a generic approach for maximum compatibility.
-
 # Check if 'nc' (netcat) is available
 if command -v nc >/dev/null 2>&1; then
-    while ! nc -z "$HOST" "$PORT" >/dev/null 2>&1; do
+    while ! nc -z -w1 "$HOST" "$PORT" >/dev/null 2>&1; do
         if [ "$COUNT" -ge "$TIMEOUT" ]; then
             echo "Error: Timeout reached ($TIMEOUT seconds) while waiting for $HOST:$PORT."
             exit 1
         fi
-        sleep "$SLEEP"
-        COUNT=$((COUNT + SLEEP))
+        sleep "$SLEEP_INTERVAL"
+        COUNT=$((COUNT + SLEEP_INTERVAL))
         echo "Still waiting ($COUNT/$TIMEOUT seconds)..."
     done
-# Fallback for systems without netcat (e.g., some minimal Alpine images)
-elif [ -e /dev/tcp ]; then
-    # Use Bash's built-in TCP connection feature
-    while ! exec 6<>/dev/tcp/"$HOST"/"$PORT"; do
+# Fallback for systems with Bash's /dev/tcp
+elif command -v bash >/dev/null 2>&1; then
+    while ! bash -c "exec 6<>/dev/tcp/$HOST/$PORT" 2>/dev/null; do
         if [ "$COUNT" -ge "$TIMEOUT" ]; then
             echo "Error: Timeout reached ($TIMEOUT seconds) while waiting for $HOST:$PORT."
             exit 1
         fi
-        sleep "$SLEEP"
-        COUNT=$((COUNT + SLEEP))
+        sleep "$SLEEP_INTERVAL"
+        COUNT=$((COUNT + SLEEP_INTERVAL))
         echo "Still waiting ($COUNT/$TIMEOUT seconds)..."
     done
+    # Close the FD if connected
+    exec 6>&-
 else
-    echo "Warning: Neither 'nc' nor '/dev/tcp' found. Sleeping for 15 seconds to give DB time to start."
+    echo "Warning: Neither 'nc' nor Bash '/dev/tcp' found. Sleeping for 15 seconds to give DB time to start."
     sleep 15
 fi
 
 echo "$HOST:$PORT is up! Starting application."
-
-# End of script
+# Exec the remaining args (e.g., java command) to replace this script's PID
+exec "$@"
