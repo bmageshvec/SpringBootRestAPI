@@ -16,7 +16,6 @@ services:
     networks:
       - app-overlay
     environment:
-      # Use strong, non-default passwords in production
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: mydatabase
       MYSQL_USER: myuser
@@ -33,7 +32,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-      start_period: 20s # Give the database time to initialize
+      start_period: 20s
 
   # --- 2. Application Service (The Spring Boot API) ---
   app:
@@ -45,27 +44,32 @@ services:
     ports:
       - "8080" # Exposed internally to the load balancer
     environment:
-      # Connection URL uses the service name 'mysql-db' as the hostname
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/mydatabase?allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: myuser
       SPRING_DATASOURCE_PASSWORD: userpassword
-    # IMPROVEMENT: Simplified dependency. The robust readiness check is now handled by wait-for-mysql.sh in the Dockerfile's CMD.
     depends_on:
       - mysql-db
+    
+    # REQUIRED FIX: Standard Compose validator expects healthcheck here.
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
+      start_period: 90s # Allows for 80-second application startup
+      
     deploy:
       mode: replicated
       replicas: 3
       restart_policy:
         condition: on-failure
-      # *** FIX: ADJUSTED HEALTHCHECK START_PERIOD ***
+      # Docker Swarm deployer expects healthcheck here (it will use this one).
       healthcheck:
-        # Check if the application's /actuator/health endpoint returns a 2xx status
         test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
         interval: 5s
         timeout: 10s
         retries: 3
-        # IMPORTANT: Increased to allow for the 80-second application startup time
-        start_period: 90s 
+        start_period: 90s
 
   # --- 3. Load Balancer Service ---
   loadbalancer:
@@ -84,7 +88,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - node.role == manager # Place the external-facing load balancer on the manager node
+          - node.role == manager
 
 configs:
   nginx_config:
