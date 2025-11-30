@@ -39,6 +39,6 @@ RUN echo "Copied files:" && ls -la
 # Expose the application port
 EXPOSE 8080
 
-# Run the wait script before starting the main Java application.
-# Increased timeout to 180 seconds (3 minutes) to allow for slow database initialization.
-CMD ["./wait-for-mysql.sh", "mysql-db:3306", "-t", "180", "--", "java", "-Dspring.config.location=/app/config/", "-jar", "app.jar"]
+# PERMANENT FIX: Changed CMD to Shell Form (single string) to ensure the shell
+# correctly parses the arguments, especially the "-t 180" flag for the timeout.
+CMD ./wait-for-mysql.sh mysql-db:3306 -t 180 -- java -Dspring.config.location=/app/config/ -jar app.jar
