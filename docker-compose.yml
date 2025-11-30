@@ -50,7 +50,8 @@ services:
     depends_on:
       - mysql-db
     
-    # REQUIRED FIX: Standard Compose validator expects healthcheck here.
+    # FINAL FIX: Defined ONLY at the service root to satisfy the validator.
+    # Docker Swarm will use this definition since the deploy.healthcheck is absent.
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 5s
@@ -63,13 +64,7 @@ services:
       replicas: 3
       restart_policy:
         condition: on-failure
-      # Docker Swarm deployer expects healthcheck here (it will use this one).
-      healthcheck:
-        test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-        interval: 5s
-        timeout: 10s
-        retries: 3
-        start_period: 90s
+      # REMOVED: services.app.deploy.healthcheck to stop the validation error.
 
   # --- 3. Load Balancer Service ---
   loadbalancer:
