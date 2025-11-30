@@ -47,8 +47,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: userpassword
       WAIT_TIMEOUT: 180
     depends_on:
-      mysql-db:
-        condition: service_healthy  # Wait for DB health
+      - mysql-db  # <-- FIXED: Simple list (no mapping/condition)
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 5s
@@ -71,7 +70,7 @@ services:
     ports:
       - "80:80"  # External access
     depends_on:
-      - app
+      - app  # Already a list—good
     deploy:
       mode: replicated
       replicas: 1
