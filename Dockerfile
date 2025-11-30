@@ -40,6 +40,5 @@ RUN echo "Copied files:" && ls -la
 EXPOSE 8080
 
 # Run the wait script before starting the main Java application.
-# The 'wait-for-mysql.sh' script ensures the database is ready before the application starts,
-# preventing early connection errors and subsequent crashes/restarts.
-CMD ["./wait-for-mysql.sh", "mysql-db:3306", "--", "java", "-Dspring.config.location=/app/config/", "-jar", "app.jar"]
+# Increased timeout to 180 seconds (3 minutes) to allow for slow database initialization.
+CMD ["./wait-for-mysql.sh", "mysql-db:3306", "-t", "180", "--", "java", "-Dspring.config.location=/app/config/", "-jar", "app.jar"]
