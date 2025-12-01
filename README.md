@@ -1,4 +1,4 @@
-```markdown
+
 # REST API Swarm Deployment (restapiapp)
 
 This repository contains the configuration to deploy a high-availability, three-tier application stack using Docker Swarm.  
