@@ -133,7 +133,17 @@ curl http://localhost:80/actuator/health  # Internal test: UP
 To access your application from a public URL (like in a Play-with-Docker environment),
 open the port 80 you use the host address on port 80, which is handled by the NGINX load balancer.  
 Public URLs (Ensure you replace the host name with your actual environment host):
-
+```
 - **Health Check:** http://ip172-18-0-20-d4m30ci91nsg009mfud0-80.direct.labs.play-with-docker.com/actuator/health  
 - **API Docs:** http://ip172-18-0-20-d4m30ci91nsg009mfud0-80.direct.labs.play-with-docker.com/swagger-ui/index.html
+```
+
+## 7. Shortcut commands in Play with docker labs
+
+```
+ctrl+ insert + enter  = copy
+ctrl+shift+v = paste
+alt+enter = maximise /mimimise  screen
+tab =  autocomplete
+
 ```
